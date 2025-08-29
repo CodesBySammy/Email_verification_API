@@ -2,10 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 9000;
 
 // Middleware
 app.use(cors());
@@ -16,10 +14,10 @@ const otpStore = new Map();
 
 // Create Nodemailer transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // You can use other services like Outlook, Yahoo, etc.
+  service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, // Your email
-    pass: process.env.EMAIL_PASS, // Your email password or app password
+    user: process.env.EMAIL_USER, // Your email from Vercel environment variables
+    pass: process.env.EMAIL_PASS, // Your email password from Vercel environment variables
   },
 });
 
@@ -215,6 +213,13 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`OTP API server running on port ${port}`);
-});
+// Export the Express app for Vercel serverless functions
+module.exports = app;
+
+// For local development
+if (require.main === module) {
+  const port = process.env.PORT || 9000;
+  app.listen(port, () => {
+    console.log(`OTP API server running on port ${port}`);
+  });
+}
